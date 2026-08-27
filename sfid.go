@@ -2,6 +2,16 @@ package sfid
 
 import "errors"
 
+const (
+	LengthShort        = 15
+	LengthLong         = 18
+	LengthEntityPrefix = 3
+)
+
+const (
+	checksumLookup = "ABCDEFGHIJKLMNOPQRSTUVWXYZ012345"
+)
+
 var ErrInvalidID = errors.New("invalid id")
 
 // ID represents a valid Salesforce record ID.
@@ -15,7 +25,7 @@ func Parse(s string) (ID, error) {
 		return "", ErrInvalidID
 	}
 
-	if len(s) == 15 {
+	if len(s) == LengthShort {
 		s, err := To18Char(s)
 		if err != nil {
 			return "", err
@@ -30,10 +40,10 @@ func Parse(s string) (ID, error) {
 // IsValid checks that the provided string is in a valid Salesforce ID format.
 // Both 15 char and 18 char formats are considered valid.
 func IsValid(id string) bool {
-	if len(id) != 15 && len(id) != 18 {
+	if len(id) != LengthShort && len(id) != LengthLong {
 		return false
 	}
-	if len(id) == 15 {
+	if len(id) == LengthShort {
 		return true
 	}
 
@@ -48,7 +58,7 @@ func appendChecksum(id string) string {
 
 // validateChecksum validates the checksum characters of the ID string.
 func validateChecksum(id string) bool {
-	if len(id) != 18 {
+	if len(id) != LengthLong {
 		return false
 	}
 
@@ -60,7 +70,7 @@ func To18Char(id string) (string, error) {
 	if !IsValid(id) {
 		return "", ErrInvalidID
 	}
-	if len(id) == 18 {
+	if len(id) == LengthLong {
 		return id, nil
 	}
 
@@ -73,7 +83,7 @@ func To15Char(id string) (string, error) {
 		return "", ErrInvalidID
 	}
 
-	return string(id[:15]), nil
+	return string(id[:LengthShort]), nil
 }
 
 // IsValid returns true if the ID is valid.
@@ -83,20 +93,20 @@ func (id ID) IsValid() bool {
 
 // EntityPrefix returns the entity prefix of the id (e.g. "003" for contacts)
 func (id ID) EntityPrefix() string {
-	if len(id) < 3 {
+	if len(id) < LengthEntityPrefix {
 		return ""
 	}
 
-	return string(id[:3])
+	return string(id[:LengthEntityPrefix])
 }
 
 // To15Char returns the id as a 15 character string
 func (id ID) To15Char() string {
-	if len(id) < 15 {
+	if len(id) < LengthShort {
 		return ""
 	}
 
-	return string(id[:15])
+	return string(id[:LengthShort])
 }
 
 // Equal return true if the IDs are equal.
@@ -105,10 +115,13 @@ func (id ID) Equal(other ID) bool {
 	return id.To15Char() == other.To15Char()
 }
 
+// IsZero returns true if the ID is empty.
+// An invalid ID is not considered zero.
 func (id ID) IsZero() bool {
 	return string(id) == ""
 }
 
+// String returns the string literal of the ID
 func (id ID) String() string {
 	return string(id)
 }
