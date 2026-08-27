@@ -1,6 +1,9 @@
 package sfid
 
-import "errors"
+import (
+	"encoding/json"
+	"errors"
+)
 
 const (
 	LengthShort        = 15
@@ -155,7 +158,10 @@ func (id ID) MarshalJSON() ([]byte, error) {
 }
 
 func (id *ID) UnmarshalJSON(b []byte) error {
-	s := string(b)
+	var s string
+	if err := json.Unmarshal(b, &s); err != nil {
+		return err
+	}
 
 	parsed, err := Parse(s)
 	if err != nil {
