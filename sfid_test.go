@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"testing"
 
-	"crisp.codes/sfid"
+	sfid "github.com/crisp-codes/go-salesforce-id"
 )
 
 var (
