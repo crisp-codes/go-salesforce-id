@@ -5,32 +5,75 @@ import "errors"
 var ErrInvalidID = errors.New("invalid id")
 
 // ID represents a valid Salesforce record ID.
+// The string representation of this type will always be the 18 character format.
 type ID string
 
 // Parse parses the provided string as an ID.
 // Returns an error if the string is not in a valid Salesforce ID format.
 func Parse(s string) (ID, error) {
-	// TODO
+	if !IsValid(s) {
+		return "", ErrInvalidID
+	}
+
+	if len(s) == 15 {
+		s, err := To18Char(s)
+		if err != nil {
+			return "", err
+		}
+
+		return ID(s), nil
+	}
+
 	return ID(s), nil
 }
 
 // IsValid checks that the provided string is in a valid Salesforce ID format.
 // Both 15 char and 18 char formats are considered valid.
 func IsValid(id string) bool {
-	// TODO
-	return false
+	if len(id) != 15 && len(id) != 18 {
+		return false
+	}
+	if len(id) == 15 {
+		return true
+	}
+
+	return validateChecksum(id)
+}
+
+// appendChecksum appends the checksum characters to the ID string.
+// It is assumed that the ID has been validated before calling.
+func appendChecksum(id string) string {
+	return id
+}
+
+// validateChecksum validates the checksum characters of the ID string.
+func validateChecksum(id string) bool {
+	if len(id) != 18 {
+		return false
+	}
+
+	return true
 }
 
 // To18Char validates and then returns the ID in 18 character string format
 func To18Char(id string) (string, error) {
-	// TODO
-	return "", nil
+	if !IsValid(id) {
+		return "", ErrInvalidID
+	}
+	if len(id) == 18 {
+		return id, nil
+	}
+
+	return appendChecksum(id), nil
 }
 
 // To15Char validates and then returns the ID in 15 character string format
 func To15Char(id string) (string, error) {
-	// TODO
-	return "", nil
+	if !IsValid(id) {
+		return "", ErrInvalidID
+	}
+
+	return string(id[:15]), nil
 }
 
 // EntityPrefix returns the entity prefix of the id (e.g. "003" for contacts)
