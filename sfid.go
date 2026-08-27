@@ -94,6 +94,16 @@ func (id ID) To15Char() string {
 	return string(id[:15])
 }
 
+// Equal return true if the IDs are equal.
+// It compares the 15 char case sensitive string representation of the IDs.
+func (id ID) Equal(other ID) bool {
+	return id.To15Char() == other.To15Char()
+}
+
+func (id ID) IsZero() bool {
+	return string(id) == ""
+}
+
 func (id ID) String() string {
 	return string(id)
 }
