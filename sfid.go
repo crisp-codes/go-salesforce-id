@@ -43,26 +43,50 @@ func IsValid(id string) bool {
 	if len(id) != LengthShort && len(id) != LengthLong {
 		return false
 	}
+
+	var block [3]int
+	for i := range LengthShort {
+		c := id[i]
+		// SF IDs must be alphanumeric
+		if !((c >= '0' && c <= '9') || (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z')) {
+			return false
+		}
+
+		if c >= 'A' && c <= 'Z' {
+			block[i/5] += 1 << (i % 5)
+		}
+	}
+
 	if len(id) == LengthShort {
 		return true
 	}
 
-	return validateChecksum(id)
+	for i, b := range block {
+		if id[15+i] != checksumLookup[b] {
+			return false
+		}
+	}
+
+	return true
 }
 
 // appendChecksum appends the checksum characters to the ID string.
 // It is assumed that the ID has been validated before calling.
 func appendChecksum(id string) string {
-	return id
-}
-
-// validateChecksum validates the checksum characters of the ID string.
-func validateChecksum(id string) bool {
-	if len(id) != LengthLong {
-		return false
+	var block [3]int
+	for i := range LengthShort {
+		c := id[i]
+		if c >= 'A' && c <= 'Z' {
+			block[i/5] += 1 << (i % 5)
+		}
 	}
 
-	return true
+	checksum := ""
+	for _, b := range block {
+		checksum += string(checksumLookup[b])
+	}
+
+	return id + checksum
 }
 
 // To18Char validates and then returns the ID in 18 character string format
@@ -131,6 +155,14 @@ func (id ID) MarshalJSON() ([]byte, error) {
 }
 
 func (id *ID) UnmarshalJSON(b []byte) error {
-	// TODO
+	s := string(b)
+
+	parsed, err := Parse(s)
+	if err != nil {
+		return err
+	}
+
+	*id = parsed
+
 	return nil
 }
