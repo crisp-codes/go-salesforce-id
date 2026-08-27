@@ -76,6 +76,11 @@ func To15Char(id string) (string, error) {
 	return string(id[:15]), nil
 }
 
+// IsValid returns true if the ID is valid.
+func (id ID) IsValid() bool {
+	return IsValid(string(id))
+}
+
 // EntityPrefix returns the entity prefix of the id (e.g. "003" for contacts)
 func (id ID) EntityPrefix() string {
 	if len(id) < 3 {
