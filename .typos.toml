@@ -1,2 +1,8 @@
 [files]
 extend-exclude = ["go.mod", "go.sum", "*.lock"]
+
+[default.extend-identifiers]
+# Synthetic SF record IDs
+a0Ab00000FooBaR = "a0Ab00000FooBaR"
+a0Ab00000FooBaREQU = "a0Ab00000FooBaREQU"
+A0AB00000FOOBAR = "A0AB00000FOOBAR"

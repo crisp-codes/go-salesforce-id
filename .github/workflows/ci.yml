@@ -1,0 +1,46 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    name: fmt & vet
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - name: gofmt
+        run: |
+          diff -u <(echo -n) <(gofmt -l .)
+
+      - name: go vet
+        run: go vet ./...
+
+      - name: typos
+        uses: crate-ci/typos@v1
+
+  test:
+    name: build & test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - name: go build
+        run: go build ./...
+
+      - name: go test
+        run: go test ./... -race -cover
